@@ -43,7 +43,8 @@ public class ChatManager : MonoBehaviour
         // Start is called before the first frame update
         void Start()
         {
-
+            messageTextInput.Select();
+            messageTextInput.ActivateInputField();
         }
 
         // Update is called once per frame
@@ -81,6 +82,10 @@ public class ChatManager : MonoBehaviour
             InitNewMessage(prefabMyMessage, textMessage);
 
             textMessageEvent.Invoke(textMessage);
+
+            messageTextInput.text = "";
+            messageTextInput.Select();
+            messageTextInput.ActivateInputField();
         }
 
         public void NewOthersMessage(TextMessage textMessage)
