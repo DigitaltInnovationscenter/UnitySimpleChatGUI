@@ -166,7 +166,7 @@ namespace Innovationscenter.ChatGUI
 
         private void ShowMessageMyText(MessageMyText message)
         {
-            if (string.IsNullOrEmpty(messageTextInput.text)) return;
+            if (string.IsNullOrEmpty(message.Text)) return;
 
             InitNewMessage(prefabMyMessage, message);
 
@@ -217,6 +217,7 @@ namespace Innovationscenter.ChatGUI
         {
             public string ButtonText { get; set; }
             public string Sender { get; set; }
+            public string Value { get; set; }
         }
     }
 }
