@@ -145,7 +145,7 @@ GameObject:
   - component: {fileID: 6930928872207331608}
   - component: {fileID: 6930928872207331611}
   - component: {fileID: 6930928872207331610}
-  - component: {fileID: 6930928872207331609}
+  - component: {fileID: -67332200479625353}
   m_Layer: 5
   m_Name: MyMessagePrefab
   m_TagString: Untagged
@@ -211,7 +211,7 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
---- !u!114 &6930928872207331609
+--- !u!114 &-67332200479625353
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -220,11 +220,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 6930928872207331615}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 88527d54c749ee94fb3889c92bb783da, type: 3}
+  m_Script: {fileID: 11500000, guid: 5b4f1fcad6585c542a41e0094d1127a1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  textMessageText: {fileID: 6930928871548780646}
-  textMessageSender: {fileID: 0}
   paddingHieght: 10
   messageSpaceMy: 30
   messageSpaceOthers: 60
+  textMessageText: {fileID: 6930928871548780646}

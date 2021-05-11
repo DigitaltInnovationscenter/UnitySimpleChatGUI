@@ -8,11 +8,16 @@ using UnityEngine.Events;
 namespace Innovationscenter.ChatGUI
 {
     [System.Serializable]
-    public class TextMessageEvent : UnityEvent<ChatManager.TextMessage>
+    public class MessageEvent : UnityEvent<ChatManager.IMessage>
     {
     }
 
-public class ChatManager : MonoBehaviour
+    [System.Serializable]
+    public class MessageOthersButtonInteractEvent : UnityEvent<ChatManager.MessageOthersButton>
+    {
+    }
+
+    public class ChatManager : MonoBehaviour
     {
         private static ChatManager _instance;
         public static ChatManager Instance { get { return _instance; } }
@@ -31,6 +36,7 @@ public class ChatManager : MonoBehaviour
 
         [SerializeField] private GameObject prefabMyMessage;
         [SerializeField] private GameObject prefabOthersMessage;
+        [SerializeField] private GameObject prefabOthersButtonMessage;
         [SerializeField] private RectTransform content;
         [SerializeField] private ScrollRect scrollRect;
         [SerializeField] private RectTransform panelBack;
@@ -55,7 +61,8 @@ public class ChatManager : MonoBehaviour
         }
         private bool keyboardVisible = false;
 
-        public TextMessageEvent textMessageEvent;
+        public MessageEvent messageEvent;
+        public MessageOthersButtonInteractEvent messageOthersButtonInteractEvent;
 
         private bool isEditing = false;
 
@@ -82,7 +89,10 @@ public class ChatManager : MonoBehaviour
             {
                 if (Input.GetKeyDown(KeyCode.Return))
                 {
-                    NewMyMessage();
+                    NewMessage(new MessageMyText
+                    {
+                        Text = messageTextInput.text
+                    });
                 }
             }
         }
@@ -99,7 +109,10 @@ public class ChatManager : MonoBehaviour
             {
                 panelBack.offsetMin = new Vector2(panelBack.offsetMin.x, 0f);
                 scrollRect.verticalNormalizedPosition = 0f;
-                NewMyMessage();
+                NewMessage(new MessageMyText
+                {
+                    Text = messageTextInput.text
+                });
             }
         }
 
@@ -129,49 +142,81 @@ public class ChatManager : MonoBehaviour
             isEditing = false;
         }
 
-        public void NewMyMessage()
+        public void OnButtonSend()
+        {
+            NewMessage(new MessageMyText
+            {
+                Text = messageTextInput.text
+            });
+        }
+
+        public void NewMessage(IMessage message)
+        {
+            if(message is MessageMyText)
+            {
+                ShowMessageMyText((MessageMyText) message);
+            } else if(message is MessageOthersText)
+            {
+                ShowMessageOthersText((MessageOthersText)message);
+            } else if(message is MessageOthersButton)
+            {
+                ShowMessageOthersButton((MessageOthersButton)message);
+            }
+        }
+
+        private void ShowMessageMyText(MessageMyText message)
         {
             if (string.IsNullOrEmpty(messageTextInput.text)) return;
 
-            TextMessage textMessage = new TextMessage
-            {
-                MessageType = TextMessage.MessageTypes.MyMessage,
-                Text = messageTextInput.text
-            };
+            InitNewMessage(prefabMyMessage, message);
 
-            InitNewMessage(prefabMyMessage, textMessage);
-
-            textMessageEvent.Invoke(textMessage);
+            messageEvent.Invoke(message);
 
             messageTextInput.text = "";
-            //messageTextInput.Select();
-            //messageTextInput.ActivateInputField();
         }
 
-        public void NewOthersMessage(TextMessage textMessage)
+        private void ShowMessageOthersText(MessageOthersText message)
         {
-            InitNewMessage(prefabOthersMessage, textMessage);
+            InitNewMessage(prefabOthersMessage, message);
         }
 
-        private void InitNewMessage(GameObject messagePrefab, TextMessage textMessage)
+        private void ShowMessageOthersButton(MessageOthersButton message)
+        {
+            InitNewMessage(prefabOthersButtonMessage, message);
+        }
+
+        private void InitNewMessage(GameObject messagePrefab, IMessage message)
         {
             //Init a new gameobject
             GameObject newMessage = Instantiate(messagePrefab, content);
 
             //Set the textmessage
-            ChatMessage chatMessage = newMessage.GetComponent<ChatMessage>();
-            chatMessage.ShowMessage(textMessage, content);
+            IChatMessage chatMessage = newMessage.GetComponent<IChatMessage>();
+            chatMessage.ShowMessage(message, content);
 
             scrollRect.verticalNormalizedPosition = 0f;
         }
 
-        public class TextMessage
+        public interface IMessage
         {
-            public enum MessageTypes { MyMessage, OthersMessage }
 
+        }
+
+        public class MessageMyText : IMessage
+        {
+            public string Text { get; set; }
+        }
+
+        public class MessageOthersText : IMessage
+        {
             public string Text { get; set; }
             public string Sender { get; set; }
-            public MessageTypes MessageType { get; set; }
+        }
+
+        public class MessageOthersButton : IMessage
+        {
+            public string ButtonText { get; set; }
+            public string Sender { get; set; }
         }
     }
 }
