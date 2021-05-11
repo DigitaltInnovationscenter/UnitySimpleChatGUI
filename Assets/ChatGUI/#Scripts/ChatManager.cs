@@ -33,8 +33,27 @@ public class ChatManager : MonoBehaviour
         [SerializeField] private GameObject prefabOthersMessage;
         [SerializeField] private RectTransform content;
         [SerializeField] private ScrollRect scrollRect;
+        [SerializeField] private RectTransform panelBack;
+        [SerializeField] private float keyboardHeightAndroid = 500f;
 
         [SerializeField] private TMP_InputField messageTextInput;
+
+        private bool KeyboardVisible
+        {
+            get
+            {
+                return keyboardVisible;
+            }
+            set
+            {
+                if(keyboardVisible != value)
+                {
+                    keyboardVisible = value;
+                    KeyboardVisibleChanged();
+                }
+            }
+        }
+        private bool keyboardVisible = false;
 
         public TextMessageEvent textMessageEvent;
 
@@ -43,19 +62,60 @@ public class ChatManager : MonoBehaviour
         // Start is called before the first frame update
         void Start()
         {
-            messageTextInput.Select();
-            messageTextInput.ActivateInputField();
+            TouchScreenKeyboard.hideInput = true;
+
+            //messageTextInput.Select();
+            //messageTextInput.ActivateInputField();
         }
 
         // Update is called once per frame
         void Update()
         {
+            if (TouchScreenKeyboard.visible)
+            {
+                KeyboardVisible = true;
+            } else
+            {
+                KeyboardVisible = false;
+            }
             if (isEditing)
             {
                 if (Input.GetKeyDown(KeyCode.Return))
                 {
                     NewMyMessage();
                 }
+            }
+        }
+
+        private void KeyboardVisibleChanged()
+        {
+            if (TouchScreenKeyboard.visible)
+            {
+                float height = GetKeyboardHeight();
+                panelBack.offsetMin = new Vector2(panelBack.offsetMin.x, height);
+                scrollRect.verticalNormalizedPosition = 0f;
+            }
+            else
+            {
+                panelBack.offsetMin = new Vector2(panelBack.offsetMin.x, 0f);
+                scrollRect.verticalNormalizedPosition = 0f;
+                NewMyMessage();
+            }
+        }
+
+        private float GetKeyboardHeight()
+        {
+            if(Application.platform == RuntimePlatform.IPhonePlayer)
+            {
+                return TouchScreenKeyboard.area.height;
+
+            } else if(Application.platform == RuntimePlatform.Android)
+            {
+                //Solution for getting the keyboard height needed
+                return keyboardHeightAndroid;
+            } else
+            {
+                return TouchScreenKeyboard.area.height;
             }
         }
 
@@ -84,8 +144,8 @@ public class ChatManager : MonoBehaviour
             textMessageEvent.Invoke(textMessage);
 
             messageTextInput.text = "";
-            messageTextInput.Select();
-            messageTextInput.ActivateInputField();
+            //messageTextInput.Select();
+            //messageTextInput.ActivateInputField();
         }
 
         public void NewOthersMessage(TextMessage textMessage)
